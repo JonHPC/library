@@ -1,12 +1,10 @@
 let myLibrary = [];
 
-const newBookBtn = document.getElementById('newBookBtn').addEventListener('click', newBook);
-
-function Book(title,author, pages, isRead){
+function Book(id,title,author, isRead){
     //Book constructor
+    this.id = id || null;
     this.title = title;
     this.author = author;
-    this.pages = pages;
     this.isRead = isRead;
 }
 
@@ -14,9 +12,29 @@ Book.prototype.toggleRead = function(){
     console.log("Toggle if book is read");
 }
 
-function newBook(){
-    //Opens a new form to input a new book
-    console.log("Open new book form");
+function inputBook(){
+    //Gets the input from the HTML form
+    const titleInput = document.getElementById('titleInput').value;
+    const authorInput = document.getElementById('authorInput').value;
+    
+    //creates a new Book object with the input
+    if(titleInput == "" || authorInput ==""){
+        return;
+    }
+    const newBook = new Book(myLibrary.length,titleInput,authorInput,false);
+    
+    //Add newBook to the library
+    addBookToLibrary(newBook);
+
+    //clears all books from the screen
+    clearScreen();
+    
+    //Display all the books in the current Library
+    displayBooks(myLibrary);
+    
+    //Resets the HTML form
+    document.getElementById("bookForm").reset();
+    
 }
 
 function addBookToLibrary(book){
@@ -29,10 +47,19 @@ function removeBook(book){
     console.log(`Removed ${book} from the library.`)
 }
 
+function clearScreen(){
+    //clears all currently displayed cards from the library div
+    let currentCards = document.getElementsByClassName('card');
+
+    while(currentCards[0]) {
+        currentCards[0].parentNode.removeChild(currentCards[0]);
+    }
+}
+
 //placeholder books
-const theHobbit = new Book("The Hobbit","JRR Tolkien", 903, true);
-const harryPotter = new Book("Harry Potter","JK Rowling", 300, false);
-const starshipTroopers = new Book("Starship Troopers","Robert Heinlein", 544, true);
+const theHobbit = new Book(0,"The Hobbit","JRR Tolkien", true);
+const harryPotter = new Book(1,"Harry Potter","JK Rowling", false);
+const starshipTroopers = new Book(2,"Starship Troopers","Robert Heinlein", true);
 
 addBookToLibrary(theHobbit);
 addBookToLibrary(harryPotter);
@@ -67,13 +94,6 @@ function displayBooks(library){
         list.appendChild(author);
         document.getElementById(`card${i}`).appendChild(list);
 
-        //Adds the "pages" value into the list
-        const pages = document.createElement('li');
-        pages.classList.add('pages');
-        pages.appendChild(document.createTextNode(`${library[i].pages} pages`));
-        list.appendChild(pages);
-        document.getElementById(`card${i}`).appendChild(list);
-
         //Adds the "isRead" value into the list
         const isRead = document.createElement('li');
         isRead.classList.add('isRead');
@@ -83,7 +103,8 @@ function displayBooks(library){
 
         //Creates a button to remove the book from the library
         let removeBtn = document.createElement("button");
-        removeBtn.innerHTML = "Remove";
+        removeBtn.innerHTML = "X";
+        removeBtn.className = "removeBtn";
         removeBtn.id = `removeBtn`;
         document.getElementById(`card${i}`).appendChild(removeBtn);
 
@@ -94,7 +115,7 @@ function displayBooks(library){
         document.getElementById(`card${i}`).appendChild(toggleSwitch);
 
         //Creates a checkbox input to go into the toggle switch label
-        let readBtn = document.createElement("button");
+        let readBtn = document.createElement("input");
         readBtn.type = "checkbox";
         readBtn.id = `readBtn${i}`;
         document.getElementById(`switch${i}`).appendChild(readBtn);
@@ -115,7 +136,6 @@ document.addEventListener('click', function(e){
         console.log("Remove btn pressed");
     }
 });
-
 
 
 
