@@ -1,5 +1,12 @@
 let myLibrary = [];
 
+//placeholder books
+const theHobbit = new Book("card0","The Hobbit","JRR Tolkien", true);
+addBookToLibrary(theHobbit);
+
+//initialize
+displayBooks(myLibrary);
+
 function Book(id,title,author, isRead){
     //Book constructor
     this.id = id || null;
@@ -9,9 +16,11 @@ function Book(id,title,author, isRead){
 }
 
 Book.prototype.toggleRead = function(){
-    console.log("Toggle if book is read");
+    this.isRead = !isRead;
+    console.log(`This book is read: ${isRead}`);
 }
 
+//This fn is run when the Submit/add new book button is pressed
 function inputBook(){
     //Gets the input from the HTML form
     const titleInput = document.getElementById('titleInput').value;
@@ -21,7 +30,7 @@ function inputBook(){
     if(titleInput == "" || authorInput ==""){
         return;
     }
-    const newBook = new Book(myLibrary.length,titleInput,authorInput,false);
+    const newBook = new Book(`card${myLibrary.length}`,titleInput,authorInput,false);
     
     //Add newBook to the library
     addBookToLibrary(newBook);
@@ -42,11 +51,6 @@ function addBookToLibrary(book){
     myLibrary.push(book);
 }
 
-function removeBook(book){
-    //Removes this book from the library
-    console.log(`Removed ${book} from the library.`)
-}
-
 function clearScreen(){
     //clears all currently displayed cards from the library div
     let currentCards = document.getElementsByClassName('card');
@@ -56,16 +60,7 @@ function clearScreen(){
     }
 }
 
-//placeholder books
-const theHobbit = new Book(0,"The Hobbit","JRR Tolkien", true);
-const harryPotter = new Book(1,"Harry Potter","JK Rowling", false);
-const starshipTroopers = new Book(2,"Starship Troopers","Robert Heinlein", true);
 
-addBookToLibrary(theHobbit);
-addBookToLibrary(harryPotter);
-addBookToLibrary(starshipTroopers);
-
-displayBooks(myLibrary);
 
 function displayBooks(library){
     
@@ -94,13 +89,6 @@ function displayBooks(library){
         list.appendChild(author);
         document.getElementById(`card${i}`).appendChild(list);
 
-        //Adds the "isRead" value into the list
-        const isRead = document.createElement('li');
-        isRead.classList.add('isRead');
-        isRead.appendChild(document.createTextNode(library[i].isRead));
-        list.appendChild(isRead);
-        document.getElementById(`card${i}`).appendChild(list);
-
         //Creates a button to remove the book from the library
         let removeBtn = document.createElement("button");
         removeBtn.innerHTML = "X";
@@ -126,16 +114,60 @@ function displayBooks(library){
         sliderArea.classList.add("round");
         sliderArea.id = `sliderArea${i}`;
         document.getElementById(`switch${i}`).appendChild(sliderArea);
+
+        //updates the toggle slider based on isRead true or false
+        if(library[i].isRead){
+            check(`readBtn${i}`);
+        } else{
+            uncheck(`readBtn${i}`);
+        }
     }
-    
-    
 }
 
+//Adds event listeners to all dynamically created "remove buttons" and "toggle switches"
 document.addEventListener('click', function(e){
     if(e.target && e.target.id == 'removeBtn'){
-        console.log("Remove btn pressed");
+        //gets the id of the card being removed
+        let indexToRemove = e.target.parentNode.id;
+
+        //use this index to remove the book object from the library
+        myLibrary = myLibrary.filter(x => {
+            return x.id != indexToRemove;
+        });
+
+        //deletes all the HTML related to this card
+        e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+
+    } else if (e.target && e.target.parentNode.className == "switch" && e.target.className == "slider round"){
+        //gets the id of the card being worked on
+        let index = e.target.parentNode.parentNode.id;
+
+        //Find index of specific object
+        let objIndex = myLibrary.findIndex((obj => obj.id == index));
+
+        //Toggle isRead
+        if(myLibrary[objIndex].isRead){
+            myLibrary[objIndex].isRead = false;
+        } else {
+            myLibrary[objIndex].isRead = true;
+        }
+
+
+        
     }
+
+    
 });
+
+//When run, check the check box/toggle the switch on
+function check(readBtn){
+    document.getElementById(readBtn).checked = true;
+}
+
+//When run, uncheck the check box/toggle the switch off
+function uncheck(readBtn){
+    document.getElementById(readBtn).checked = false;
+}
 
 
 
